@@ -51,8 +51,10 @@ jobs:
           context: .
           file: docker/Dockerfile.api
           push: true
+          pull: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: BUILD_DATE=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -119,8 +121,10 @@ jobs:
           context: .
           file: docker/Dockerfile.frontend
           push: true
+          pull: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: BUILD_DATE=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

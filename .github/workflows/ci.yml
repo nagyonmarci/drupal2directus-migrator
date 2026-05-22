@@ -101,7 +101,9 @@ jobs:
           context: .
           file: docker/Dockerfile.api
           push: false
+          pull: true
           tags: migrator-api:ci
+          build-args: BUILD_DATE=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/migrator-api.tar
@@ -112,7 +114,9 @@ jobs:
           context: .
           file: docker/Dockerfile.frontend
           push: false
+          pull: true
           tags: migrator-frontend:ci
+          build-args: BUILD_DATE=${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/migrator-frontend.tar
