@@ -12,7 +12,7 @@ A complete, phased Python migration toolkit to move a Drupal 10 CMS to Directus 
 - **Dual Drupal source** — schema, users, and file metadata are read directly from MySQL; node content is fetched via the Drupal JSON:API REST API
 - **Full entity coverage** — content types, taxonomy, users, roles, files, blocks, and views
 - **Directus Views → Presets** — Drupal Views are translated into Directus Data Studio Presets (via API) and Markdown/GraphQL query template files
-- **Secure user migration** — Drupal password hashes are never copied; each user receives a cryptographically random placeholder password and can reset via the standard "Forgot Password" flow
+- **Secure user migration** — Drupal password hashes are never copied; each user receives a cryptographically random placeholder password and can reset via the standard “Forgot Password” flow
 
 ---
 
@@ -41,8 +41,61 @@ docker compose up --build -d
 
 Open **http://localhost:3000** in your browser.
 
-- The web UI lets you add source/target connection pairs, select which phases to run, and stream live logs.
-- The FastAPI Swagger UI is available at **http://localhost:8000/docs**.
+The FastAPI Swagger UI is available at **http://localhost:8000/docs**.
+
+---
+
+## Web UI
+
+The frontend is a React + TypeScript + Tailwind app served by nginx, proxying all `/api/` requests to the FastAPI backend. It is the primary interface for day-to-day use.
+
+### Jobs dashboard (`/jobs`)
+
+The landing page lists every migration job with its label, source connection, selected phases, current status, and creation time. The list auto-refreshes every 5 seconds so running jobs update in place without a page reload.
+
+Status indicators:
+
+| Badge | Meaning |
+|---|---|
+| `pending` | Queued, not yet started |
+| `running` | Currently executing (pulsing) |
+| `done` | Completed successfully |
+| `failed` | Stopped due to an error |
+| `cancelled` | Manually cancelled |
+
+### Creating a migration job (`/jobs/new`)
+
+A three-step wizard guides you through setting up a migration:
+
+**Step 1 — Connection**
+
+Select an existing saved connection from the dropdown, or click **+ Add new connection** to fill in a form with:
+
+- *Connection name* — a human-readable label stored for reuse
+- *Source (Drupal)* — site base URL, MySQL host / port / name / user / password, REST API username and password
+- *Target (Directus)* — instance URL and static admin token
+
+After saving a new connection (or selecting an existing one), click **Test connection** to verify that all three endpoints (Drupal DB, Drupal REST API, Directus) are reachable before proceeding. Any unreachable endpoint is reported with a specific error.
+
+**Step 2 — Phases**
+
+Choose an optional free-text job label and tick which migration phases to include. All six phases are selected by default; untick any you want to skip.
+
+**Step 3 — Confirm & start**
+
+A summary card shows the chosen connection and phases. Click **Start migration** to submit the job — it starts immediately and you are redirected to the job detail page.
+
+### Job detail (`/jobs/:id`)
+
+Shows real-time information about a single job:
+
+- **Metadata cards** — created timestamp, started timestamp, and total duration once finished
+- **Error banner** — if the job failed, the error message is shown inline
+- **Phase list** — the phases selected for this job, displayed as labelled chips
+- **Live log output** — a scrolling terminal-style panel that streams log lines from the backend via [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events). Lines appear in real time as each phase executes; the panel auto-scrolls to the bottom
+- **Cancel button** — visible while the job is `pending` or `running`; sends a DELETE request and marks the job as `cancelled`
+
+The detail page polls the job status every 3 seconds and stops polling once a terminal state (`done`, `failed`, or `cancelled`) is reached.
 
 ### Production deployment
 
@@ -198,7 +251,7 @@ drupal2directus-migrator/
   "nodes":  { "<drupal_nid>": "<directus_item_id>",   ... },
   "terms":  { "<drupal_tid>": "<directus_item_id>",   ... },
   "blocks": { "<drupal_bid>": "<directus_item_id>",   ... },
-  "views":  { "<view_name>":  "<directus_preset_id>", ... }
+  "views":  { "<view_name>": "<directus_preset_id>",  ... }
 }
 ```
 
