@@ -1,0 +1,33 @@
+# Fly.io config for the FastAPI migration backend.
+# The 'app' name must be globally unique on Fly.io — rename before running fly launch.
+
+app = 'drupal2directus-api'
+primary_region = 'ams'
+
+[build]
+  dockerfile = 'docker/Dockerfile.api'
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    grace_period = '10s'
+    interval = '30s'
+    method = 'GET'
+    path = '/api/health'
+    timeout = '5s'
+
+# Persistent volume for migration_state.json and logs.
+# Create once with: fly volumes create migrator_data --app <app-name> --size 1
+[[mounts]]
+  source = 'migrator_data'
+  destination = '/app/data'
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 256

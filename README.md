@@ -99,10 +99,14 @@ The detail page polls the job status every 3 seconds and stops polling once a te
 
 ### Production deployment
 
+**Docker Compose (self-hosted)**
+
 ```bash
 # Pull pre-built images from GHCR and start
 docker compose -f docker-compose.prod.yml up -d
 ```
+
+**Fly.io (free cloud)** — see [Fly.io deployment](#flyio-deployment) below.
 
 ### `.env` variables
 
@@ -118,6 +122,45 @@ docker compose -f docker-compose.prod.yml up -d
 | `DRUPAL_API_PASSWORD` | Drupal password for REST API auth |
 | `DIRECTUS_URL` | Directus instance URL, e.g. `https://directus.mysite.com` |
 | `DIRECTUS_ADMIN_TOKEN` | Static admin token from Directus settings |
+
+---
+
+## Fly.io deployment
+
+The `fly/` directory contains ready-made configurations for deploying to [Fly.io](https://fly.io) at no cost (free tier: 3 shared VMs + 3 GB persistent storage).
+
+### One-time setup
+
+1. [Install flyctl](https://fly.io/docs/hands-on/install-flyctl/) and log in:
+
+   ```bash
+   fly auth login
+   ```
+
+2. **Choose unique app names.** App names on Fly.io are globally unique. Edit `fly/api.toml` and `fly/frontend.toml` and set your own `app` values. Then update `API_UPSTREAM` in `fly/frontend.toml` to match your API app name:
+
+   ```toml
+   # fly/frontend.toml
+   [env]
+     API_UPSTREAM = "http://<your-api-app-name>.internal:8000"
+   ```
+
+3. Bootstrap both apps from the repo root (run once):
+
+   ```bash
+   # API — create app and persistent volume, then deploy
+   fly launch --config fly/api.toml --no-deploy --yes
+   fly volumes create migrator_data --app <your-api-app-name> --size 1
+   fly deploy --config fly/api.toml
+
+   # Frontend
+   fly launch --config fly/frontend.toml --no-deploy --yes
+   fly deploy --config fly/frontend.toml
+   ```
+
+### Continuous deployment
+
+Add `FLY_API_TOKEN` to your GitHub repository secrets (generate with `fly tokens create deploy -x 999999h`). The CD workflow automatically deploys both services on every push to `main`.
 
 ---
 
@@ -182,7 +225,7 @@ Reads Drupal content types, fields, and taxonomy vocabularies from the database.
 | `link`, `geofield`, `address` | `json` |
 
 ### Phase 3 — Identity & Access Migration
-Migrates Drupal roles to Directus roles, then migrates all active users. Drupal's `administrator` role maps to the existing Directus `Administrator` role. Each user is created with `status: active` and a 32-byte random placeholder password. Drupal password hashes are never used.
+Migrates Drupal roles to Directus roles, then migrates all active users. Drupal’s `administrator` role maps to the existing Directus `Administrator` role. Each user is created with `status: active` and a 32-byte random placeholder password. Drupal password hashes are never used.
 
 ### Phase 4 — Media & File Migration
 Reads the `file_managed` table, downloads each file from `sites/default/files/`, and uploads it to Directus via the Files API. File ID mappings (`drupal_fid → directus_file_uuid`) are stored in the state file for use in Phase 5.
@@ -209,6 +252,9 @@ drupal2directus-migrator/
 ├── migrate.py                  # CLI orchestrator
 ├── requirements.txt
 ├── .env.example
+├── fly/
+│   ├── api.toml                # Fly.io config for the API
+│   └── frontend.toml           # Fly.io config for the frontend
 ├── src/
 │   ├── config.py               # Env var loading & validation
 │   ├── logger.py               # Rotating file + console logging
@@ -251,7 +297,7 @@ drupal2directus-migrator/
   "nodes":  { "<drupal_nid>": "<directus_item_id>",   ... },
   "terms":  { "<drupal_tid>": "<directus_item_id>",   ... },
   "blocks": { "<drupal_bid>": "<directus_item_id>",   ... },
-  "views":  { "<view_name>": "<directus_preset_id>",  ... }
+  "views":  { "<view_name>":  "<directus_preset_id>", ... }
 }
 ```
 

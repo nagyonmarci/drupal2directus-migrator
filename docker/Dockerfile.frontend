@@ -1,4 +1,4 @@
-# ── Build stage ───────────────────────────────────────────────────────────────
+# ── Build stage ───────────────────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -9,7 +9,7 @@ RUN npm ci --prefer-offline
 COPY frontend/ .
 RUN npm run build
 
-# ── Runtime stage ─────────────────────────────────────────────────────────────
+# ── Runtime stage ─────────────────────────────────────────────────────────────────────────────────
 FROM nginx:1.27-alpine
 
 # BUILD_DATE changes on every CI run, busting the cache for the upgrade layer
@@ -18,15 +18,21 @@ ARG BUILD_DATE=unknown
 RUN apk upgrade --no-cache && \
     rm /etc/nginx/conf.d/default.conf
 
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+# nginx.conf uses ${API_UPSTREAM}; envsubst renders it at startup
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf.template
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Non-root nginx
+# Non-root nginx — conf.d must be writable so the rendered config can be written
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
+    chown -R nginx:nginx /etc/nginx/conf.d && \
     touch /var/run/nginx.pid && \
     chown nginx:nginx /var/run/nginx.pid
+
+# Default upstream matches the Docker Compose service name.
+# Override with API_UPSTREAM env var for other deployment targets (e.g. Fly.io).
+ENV API_UPSTREAM=http://api:8000
 
 USER nginx
 
@@ -34,3 +40,6 @@ EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=5s \
     CMD wget -qO- http://localhost/api/health || exit 1
+
+# Substitute only ${API_UPSTREAM}; other nginx variables ($host, $uri …) are preserved.
+CMD ["/bin/sh", "-c", "envsubst '$API_UPSTREAM' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]

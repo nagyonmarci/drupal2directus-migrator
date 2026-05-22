@@ -1,0 +1,26 @@
+# Fly.io config for the nginx frontend.
+# The 'app' name must be globally unique on Fly.io — rename before running fly launch.
+# Update API_UPSTREAM to match your API app name.
+
+app = 'drupal2directus-ui'
+primary_region = 'ams'
+
+[build]
+  dockerfile = 'docker/Dockerfile.frontend'
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+[env]
+  # Reaches the API via Fly private network (no public internet hop).
+  # Change 'drupal2directus-api' to match your API app name.
+  API_UPSTREAM = 'http://drupal2directus-api.internal:8000'
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 256
