@@ -9,7 +9,7 @@ from rich.progress import track
 
 from src import config
 from src.state import StateTracker
-from src.drupal.schema_reader import get_content_types, get_fields_for_type, get_taxonomies, get_entity_reference_target, map_field_type
+from src.drupal.schema_reader import get_content_types, get_fields_for_type, get_taxonomies, get_entity_reference_target
 from src.drupal.content_reader import (
     get_taxonomy_terms,
     list_nodes_via_api,

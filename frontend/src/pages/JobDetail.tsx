@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { getJob, cancelJob } from '../api/client'
 import type { Job } from '../types'
 import { PHASE_LABELS } from '../types'
@@ -8,7 +8,6 @@ import LogStream from '../components/LogStream'
 
 export default function JobDetail() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const [job, setJob] = useState<Job | null>(null)
   const [error, setError] = useState('')
   const [cancelling, setCancelling] = useState(false)

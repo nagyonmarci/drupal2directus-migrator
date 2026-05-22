@@ -1,7 +1,6 @@
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import Generator
 
-import mysql.connector
 from mysql.connector.pooling import MySQLConnectionPool
 
 from src import config

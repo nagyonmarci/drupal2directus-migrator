@@ -1,6 +1,5 @@
 """Create Directus Presets from Drupal Views and generate query template files."""
 import json
-import os
 from pathlib import Path
 from src.directus.client import DirectusClient
 from src.logger import get_logger
@@ -45,7 +44,6 @@ def _build_sort(sorts: list) -> list[str]:
 
 def create_preset(client: DirectusClient, view_name: str, view_config: dict) -> str | None:
     """Create a Directus Preset from a Drupal View config. Returns preset ID."""
-    label = view_config.get("label", view_name)
     base_table = _extract_base_table(view_config)
 
     displays = view_config.get("display", {})

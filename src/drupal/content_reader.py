@@ -4,7 +4,6 @@ from typing import Any
 
 from src.drupal import db
 from src.drupal.api_client import DrupalApiClient
-from src.drupal.schema_reader import get_content_types, get_fields_for_type
 from src.logger import get_logger
 
 logger = get_logger(__name__)
