@@ -12,7 +12,6 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  OWNER: ${{ github.repository_owner }}
 
 jobs:
   # ── Build & push API image ────────────────────────────────────────────────
@@ -38,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/migrator-api
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-api
           tags: |
             type=sha,prefix=sha-
             type=ref,event=branch
@@ -58,16 +57,16 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Generate SBOM (API)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.OWNER }}/migrator-api@${{ steps.push.outputs.digest }}
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-api@${{ steps.push.outputs.digest }}
           format: cyclonedx
           output: sbom-api.json
 
       - name: Trivy scan on pushed image (API)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.OWNER }}/migrator-api@${{ steps.push.outputs.digest }}
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-api@${{ steps.push.outputs.digest }}
           format: sarif
           output: trivy-api.sarif
           severity: CRITICAL,HIGH
@@ -106,7 +105,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/migrator-frontend
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-frontend
           tags: |
             type=sha,prefix=sha-
             type=ref,event=branch
@@ -126,16 +125,16 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Generate SBOM (frontend)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.OWNER }}/migrator-frontend@${{ steps.push.outputs.digest }}
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-frontend@${{ steps.push.outputs.digest }}
           format: cyclonedx
           output: sbom-frontend.json
 
       - name: Trivy scan on pushed image (frontend)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.OWNER }}/migrator-frontend@${{ steps.push.outputs.digest }}
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-frontend@${{ steps.push.outputs.digest }}
           format: sarif
           output: trivy-frontend.sarif
           severity: CRITICAL,HIGH
@@ -181,8 +180,8 @@ jobs:
             ## Docker images
 
             ```
-            ghcr.io/${{ env.OWNER }}/migrator-api:${{ github.ref_name }}
-            ghcr.io/${{ env.OWNER }}/migrator-frontend:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}/migrator-api:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}/migrator-frontend:${{ github.ref_name }}
             ```
 
             ## Quick start
