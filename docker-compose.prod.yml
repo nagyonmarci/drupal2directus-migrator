@@ -1,0 +1,29 @@
+services:
+  api:
+    image: ghcr.io/nagyonmarci/drupal2directus-migrator/migrator-api:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - migration_data:/app/data
+    environment:
+      - DATA_DIR=/app/data
+    restart: always
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    image: ghcr.io/nagyonmarci/drupal2directus-migrator/migrator-frontend:latest
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: always
+
+volumes:
+  migration_data:
+    driver: local

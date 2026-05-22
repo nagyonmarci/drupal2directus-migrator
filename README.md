@@ -1,9 +1,13 @@
 # drupal2directus-migrator
 
-A complete, phased Python migration toolkit to move a Drupal 10 CMS to Directus 11. Scripts are idempotent, state-tracked, and fully logged — safe to re-run after any failure.
+[![CI](https://github.com/nagyonmarci/drupal2directus-migrator/actions/workflows/ci.yml/badge.svg)](https://github.com/nagyonmarci/drupal2directus-migrator/actions/workflows/ci.yml)
+[![CD](https://github.com/nagyonmarci/drupal2directus-migrator/actions/workflows/cd.yml/badge.svg)](https://github.com/nagyonmarci/drupal2directus-migrator/actions/workflows/cd.yml)
+
+A complete, phased Python migration toolkit to move a Drupal 10 CMS to Directus 11. Ships with a web UI and runs entirely in Docker. Scripts are idempotent, state-tracked, and fully logged — safe to re-run after any failure.
 
 ## Features
 
+- **Web UI** — browser-based interface to configure source/target site pairs, select migration phases, and monitor live log output
 - **Incremental / resumable** — every migrated entity is recorded in `migration_state.json`; re-running a phase skips already-completed records
 - **Dual Drupal source** — schema, users, and file metadata are read directly from MySQL; node content is fetched via the Drupal JSON:API REST API
 - **Full entity coverage** — content types, taxonomy, users, roles, files, blocks, and views
@@ -14,28 +18,37 @@ A complete, phased Python migration toolkit to move a Drupal 10 CMS to Directus 
 
 ## Requirements
 
-- Python 3.11+
+- Docker + Docker Compose
 - Access to the Drupal 10 MySQL database
 - Drupal site reachable via HTTP (for JSON:API and file downloads)
 - A running Directus 11 instance with a static admin token
 
 ---
 
-## Setup
+## Quick start (Docker)
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/nagyonmarci/drupal2directus-migrator.git
 cd drupal2directus-migrator
 
-# 2. Create a virtual environment and install dependencies
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 3. Configure credentials
+# 2. Copy env template (only needed if running migrate.py directly)
 cp .env.example .env
-# Edit .env with your Drupal DB credentials, Drupal base URL, and Directus URL/token
+
+# 3. Build and start
+docker compose up --build -d
+```
+
+Open **http://localhost:3000** in your browser.
+
+- The web UI lets you add source/target connection pairs, select which phases to run, and stream live logs.
+- The FastAPI Swagger UI is available at **http://localhost:8000/docs**.
+
+### Production deployment
+
+```bash
+# Pull pre-built images from GHCR and start
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ### `.env` variables
