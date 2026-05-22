@@ -59,14 +59,14 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Generate SBOM (API)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-api@${{ steps.push.outputs.digest }}
           format: cyclonedx
           output: sbom-api.json
 
       - name: Trivy scan on pushed image (API)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-api@${{ steps.push.outputs.digest }}
           format: sarif
@@ -129,14 +129,14 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Generate SBOM (frontend)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-frontend@${{ steps.push.outputs.digest }}
           format: cyclonedx
           output: sbom-frontend.json
 
       - name: Trivy scan on pushed image (frontend)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/migrator-frontend@${{ steps.push.outputs.digest }}
           format: sarif

@@ -148,7 +148,7 @@ jobs:
           docker load --input /tmp/migrator-frontend.tar
 
       - name: Scan API image (table — visible in log)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: migrator-api:ci
           format: table
@@ -158,7 +158,7 @@ jobs:
 
       - name: Scan API image (SARIF — GitHub Security tab)
         if: always()
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: migrator-api:ci
           format: sarif
@@ -168,7 +168,7 @@ jobs:
 
       - name: Scan frontend image (table — visible in log)
         if: always()
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: migrator-frontend:ci
           format: table
@@ -178,7 +178,7 @@ jobs:
 
       - name: Scan frontend image (SARIF — GitHub Security tab)
         if: always()
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: migrator-frontend:ci
           format: sarif
