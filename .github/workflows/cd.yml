@@ -79,7 +79,7 @@ jobs:
         if: always()
         with:
           sarif_file: trivy-api.sarif
-          category: trivy-api
+          category: cd-trivy-api
 
       - uses: actions/upload-artifact@v4
         with:
@@ -149,7 +149,7 @@ jobs:
         if: always()
         with:
           sarif_file: trivy-frontend.sarif
-          category: trivy-frontend
+          category: cd-trivy-frontend
 
       - uses: actions/upload-artifact@v4
         with:
