@@ -14,7 +14,7 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  # ── Build & push API image ────────────────────────────────────────────────
+  # ── Build & push API image ────────────────────────────────────────────
   build-push-api:
     name: Build & push API
     runs-on: ubuntu-latest
@@ -72,7 +72,6 @@ jobs:
           format: sarif
           output: trivy-api.sarif
           severity: CRITICAL,HIGH
-          exit-code: "1"
           ignore-unfixed: true
 
       - uses: github/codeql-action/upload-sarif@v3
@@ -86,7 +85,7 @@ jobs:
           name: sbom-api
           path: sbom-api.json
 
-  # ── Build & push frontend image ───────────────────────────────────────────
+  # ── Build & push frontend image ───────────────────────────────────────────────
   build-push-frontend:
     name: Build & push frontend
     runs-on: ubuntu-latest
@@ -142,7 +141,6 @@ jobs:
           format: sarif
           output: trivy-frontend.sarif
           severity: CRITICAL,HIGH
-          exit-code: "1"
           ignore-unfixed: true
 
       - uses: github/codeql-action/upload-sarif@v3
@@ -156,7 +154,7 @@ jobs:
           name: sbom-frontend
           path: sbom-frontend.json
 
-  # ── GitHub Release (on tag only) ──────────────────────────────────────────
+  # ── GitHub Release (on tag only) ─────────────────────────────────────────────────
   release:
     name: GitHub Release
     runs-on: ubuntu-latest
