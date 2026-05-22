@@ -186,9 +186,16 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
 
-      - name: Upload SARIF results
+      - name: Upload API SARIF results
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: .
-          category: trivy
+          sarif_file: trivy-api.sarif
+          category: trivy-api
+
+      - name: Upload frontend SARIF results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-frontend.sarif
+          category: trivy-frontend
