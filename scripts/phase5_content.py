@@ -76,8 +76,6 @@ def migrate_nodes(
             for field in fields:
                 field_name: str = field["field_name"]
                 drupal_type: str = field["field_type"]
-                directus_type = map_field_type(drupal_type)
-
                 if drupal_type == "entity_reference":
                     target = get_entity_reference_target(machine_name, field_name)
                     if target == "taxonomy_term":

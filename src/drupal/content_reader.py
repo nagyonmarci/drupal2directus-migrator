@@ -51,7 +51,7 @@ def get_node_field_values(content_type: str, nid: int, field_name: str) -> list[
     column_prefix = field_name
     try:
         rows = db.fetchall(
-            f"SELECT * FROM `{table}` WHERE entity_id = %s AND deleted = 0 ORDER BY delta",
+            f"SELECT * FROM `{table}` WHERE entity_id = %s AND deleted = 0 ORDER BY delta",  # nosec B608 — table name derived from internal Drupal schema, never user input
             (nid,),
         )
         results = []
